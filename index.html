@@ -36,43 +36,12 @@
             top: 60px;
             font-size: 18px;
         }
-        #github-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #github-modal input {
-            padding: 10px;
-            font-size: 16px;
-            width: 200px;
-            margin-right: 10px;
-        }
-        #github-modal button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #555;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <div id="cube">CUBE</div>
     <div id="score">CubCoins: 0</div>
     <div id="leaderboard">Leaderboard: Loading...</div>
-
-    <div id="github-modal">
-        <p>Please enter your GitHub username:</p>
-        <input type="text" id="github-username" placeholder="GitHub Username">
-        <button onclick="saveGitHubUsername()">Save</button>
-    </div>
 
     <script>
         let cubcoins = 0;
@@ -81,7 +50,6 @@
         const cube = document.getElementById('cube');
         const scoreDisplay = document.getElementById('score');
         const leaderboardDisplay = document.getElementById('leaderboard');
-        const githubModal = document.getElementById('github-modal');
 
         // Инициализация Telegram Web App
         Telegram.WebApp.ready();
@@ -89,24 +57,15 @@
         // Получаем данные пользователя из Telegram
         const user = Telegram.WebApp.initDataUnsafe.user;
         if (user) {
+            // Используем username из Telegram, если он есть, иначе используем user_id
             username = user.username || `user_${user.id}`;
         } else {
+            // Если данные пользователя недоступны, используем анонимное имя
             username = 'anonymous';
         }
 
-        // Показываем модальное окно для ввода GitHub-никнейма
-        githubModal.style.display = 'block';
-
-        function saveGitHubUsername() {
-            const githubUsername = document.getElementById('github-username').value;
-            if (githubUsername) {
-                username = githubUsername;
-                githubModal.style.display = 'none';
-                startGame();
-            } else {
-                alert('Please enter a valid GitHub username.');
-            }
-        }
+        // Начинаем игру
+        startGame();
 
         function startGame() {
             cube.addEventListener('click', () => {
@@ -133,4 +92,8 @@
         async function updateLeaderboard() {
             const response = await fetch('/leaderboard');
             const data = await response.json();
-            leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).
+            leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).join(', ');
+        }
+    </script>
+</body>
+</html>
