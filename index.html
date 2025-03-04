@@ -1,106 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUBE COIN</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        #cube {
-            width: 100px;
-            height: 100px;
-            background-color: #444;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        #score {
-            position: absolute;
-            top: 20px;
-            font-size: 24px;
-        }
-        #leaderboard {
-            position: absolute;
-            top: 60px;
-            font-size: 18px;
-        }
-    </style>
-</head>
-<body>
-    <div id="cube">CUBE</div>
-    <div id="score">CubCoins: 0</div>
-    <div id="leaderboard">Leaderboard: Loading...</div>
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-    <script>
-        let cubcoins = 0;
-        let username = null;
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-        const cube = document.getElementById('cube');
-        const scoreDisplay = document.getElementById('score');
-        const leaderboardDisplay = document.getElementById('leaderboard');
+app.use(cors());
+app.use(bodyParser.json());
 
-        // Инициализация Telegram Web App
-        Telegram.WebApp.ready();
+// Подключение к MongoDB
+mongoose.connect('mongodb://localhost:27017/cubcoin', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
-        // Получаем данные пользователя из Telegram
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            // Используем username из Telegram, если он есть, иначе используем user_id
-            username = user.username || `user_${user.id}`;
+// Схема и модель для игроков
+const playerSchema = new mongoose.Schema({
+    username: String,
+    cubcoins: { type: Number, default: 0 },
+});
+
+const Player = mongoose.model('Player', playerSchema);
+
+// Роут для получения лидерборда
+app.get('/leaderboard', async (req, res) => {
+    try {
+        const players = await Player.find().sort({ cubcoins: -1 }).limit(10);
+        res.json(players);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Роут для обновления очков игрока
+app.post('/update', async (req, res) => {
+    const { username, cubcoins } = req.body;
+
+    try {
+        let player = await Player.findOne({ username });
+
+        if (!player) {
+            player = new Player({ username, cubcoins });
         } else {
-            // Если данные пользователя недоступны, используем анонимное имя
-            username = 'anonymous';
+            player.cubcoins += cubcoins;
         }
 
-        // Обработчик кликов по кубу
-        cube.addEventListener('click', () => {
-            cubcoins++;
-            scoreDisplay.textContent = `CubCoins: ${cubcoins}`;
-            updateServer();
-        });
+        await player.save();
+        res.json(player);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
-        // Обновление лидерборда
-        async function updateLeaderboard() {
-            try {
-                const response = await fetch('/leaderboard');
-                const data = await response.json();
-                leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).join(', ');
-            } catch (error) {
-                console.error('Error updating leaderboard:', error);
-            }
-        }
-
-        // Отправка данных на сервер
-        async function updateServer() {
-            try {
-                const response = await fetch('/update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, cubcoins: 1 }),
-                });
-                const data = await response.json();
-                updateLeaderboard();
-            } catch (error) {
-                console.error('Error updating server:', error);
-            }
-        }
-
-        // Инициализация лидерборда при загрузке
-        updateLeaderboard();
-    </script>
-</body>
-</html>
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
