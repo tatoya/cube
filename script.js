@@ -1,44 +1,29 @@
-// Инициализация Telegram Web App
-Telegram.WebApp.ready();
+// Обработчик кликов по кубу
+cube.addEventListener('click', () => {
+    cubcoins++;
+    scoreDisplay.textContent = `CubCoins: ${cubcoins}`;
+    updateServer();
+});
 
-// Получаем данные пользователя
-const user = Telegram.WebApp.initDataUnsafe.user;
+// Отправка данных на сервер
+async function updateServer() {
+    try {
+        const response = await fetch('/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, cubcoins: 1 }), // Отправляем 1 CubCoin за каждый клик
+        });
 
-// Функция для получения количества кубов
-async function getCubeCount() {
-    const response = await fetch(`http://ваш-сервер/api/cubes/${user.id}`);
-    const data = await response.json();
-    document.getElementById('cubeCount').textContent = data.cubeCount || 0;
+        if (!response.ok) {
+            throw new Error('Server response was not OK');
+        }
+
+        const data = await response.json();
+        console.log('Server response:', data); // Логируем ответ сервера
+        updateLeaderboard();
+    } catch (error) {
+        console.error('Error updating server:', error);
+    }
 }
-
-// Функция для увеличения количества кубов
-async function incrementCubeCount() {
-    const response = await fetch(`http://ваш-сервер/api/cubes/${user.id}`, {
-        method: 'POST',
-    });
-    const data = await response.json();
-    document.getElementById('cubeCount').textContent = data.cubeCount;
-}
-
-// Обновляем отображение кубов при загрузке
-getCubeCount();
-
-// Обработка нажатия на кнопку
-document.getElementById('farmButton').addEventListener('click', incrementCubeCount);
-// Функция для загрузки лидерборда
-async function loadLeaderboard() {
-    const response = await fetch('http://ваш-сервер/api/leaderboard');
-    const leaderboard = await response.json();
-
-    const leaderboardList = document.getElementById('leaderboard');
-    leaderboardList.innerHTML = ''; // Очистка списка
-
-    leaderboard.forEach((user, index) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${index + 1}. ${user.firstName || 'Аноним'} (${user.cubeCount} кубов)`;
-        leaderboardList.appendChild(listItem);
-    });
-}
-
-// Загружаем лидерборд при загрузке страницы
-loadLeaderboard();
