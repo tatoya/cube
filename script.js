@@ -25,3 +25,20 @@ getCubeCount();
 
 // Обработка нажатия на кнопку
 document.getElementById('farmButton').addEventListener('click', incrementCubeCount);
+// Функция для загрузки лидерборда
+async function loadLeaderboard() {
+    const response = await fetch('http://ваш-сервер/api/leaderboard');
+    const leaderboard = await response.json();
+
+    const leaderboardList = document.getElementById('leaderboard');
+    leaderboardList.innerHTML = ''; // Очистка списка
+
+    leaderboard.forEach((user, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${user.firstName || 'Аноним'} (${user.cubeCount} кубов)`;
+        leaderboardList.appendChild(listItem);
+    });
+}
+
+// Загружаем лидерборд при загрузке страницы
+loadLeaderboard();
