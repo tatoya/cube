@@ -64,36 +64,43 @@
             username = 'anonymous';
         }
 
-        // Начинаем игру
-        startGame();
+        // Обработчик кликов по кубу
+        cube.addEventListener('click', () => {
+            cubcoins++;
+            scoreDisplay.textContent = `CubCoins: ${cubcoins}`;
+            updateServer();
+        });
 
-        function startGame() {
-            cube.addEventListener('click', () => {
-                cubcoins++;
-                scoreDisplay.textContent = `CubCoins: ${cubcoins}`;
-                updateServer();
-            });
-
-            updateLeaderboard();
-        }
-
-        async function updateServer() {
-            const response = await fetch('/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, cubcoins: 1 }),
-            });
-            const data = await response.json();
-            updateLeaderboard();
-        }
-
+        // Обновление лидерборда
         async function updateLeaderboard() {
-            const response = await fetch('/leaderboard');
-            const data = await response.json();
-            leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).join(', ');
+            try {
+                const response = await fetch('/leaderboard');
+                const data = await response.json();
+                leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).join(', ');
+            } catch (error) {
+                console.error('Error updating leaderboard:', error);
+            }
         }
+
+        // Отправка данных на сервер
+        async function updateServer() {
+            try {
+                const response = await fetch('/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, cubcoins: 1 }),
+                });
+                const data = await response.json();
+                updateLeaderboard();
+            } catch (error) {
+                console.error('Error updating server:', error);
+            }
+        }
+
+        // Инициализация лидерборда при загрузке
+        updateLeaderboard();
     </script>
 </body>
 </html>
