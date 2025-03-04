@@ -26,25 +26,6 @@ cube.addEventListener('click', () => {
     updateServer(); // Отправляем данные на сервер
 });
 
-// Функция для обновления лидерборда
-async function updateLeaderboard() {
-    try {
-        // Запрашиваем данные лидерборда с сервера
-        const response = await fetch('/leaderboard');
-        const data = await response.json();
-
-        // Форматируем данные лидерборда
-        const leaderboardText = data.map((player, index) => 
-            `${index + 1}. ${player.username}: ${player.cubcoins}`
-        ).join('\n');
-
-        // Обновляем отображение лидерборда
-        leaderboardDisplay.textContent = `Leaderboard:\n${leaderboardText}`;
-    } catch (error) {
-        console.error('Error updating leaderboard:', error);
-    }
-}
-
 // Функция для отправки данных на сервер
 async function updateServer() {
     try {
@@ -62,10 +43,30 @@ async function updateServer() {
             throw new Error('Server response was not OK');
         }
 
-        // Обновляем лидерборд после успешного обновления данных
-        updateLeaderboard();
+        const data = await response.json();
+        console.log('Server response:', data); // Логируем ответ сервера
+        updateLeaderboard(); // Обновляем лидерборд
     } catch (error) {
         console.error('Error updating server:', error);
+    }
+}
+
+// Функция для обновления лидерборда
+async function updateLeaderboard() {
+    try {
+        // Запрашиваем данные лидерборда с сервера
+        const response = await fetch('/leaderboard');
+        const data = await response.json();
+
+        // Форматируем данные лидерборда
+        const leaderboardText = data.map((player, index) => 
+            `${index + 1}. ${player.username}: ${player.cubcoins}`
+        ).join('\n');
+
+        // Обновляем отображение лидерборда
+        leaderboardDisplay.textContent = `Leaderboard:\n${leaderboardText}`;
+    } catch (error) {
+        console.error('Error updating leaderboard:', error);
     }
 }
 
