@@ -24,6 +24,9 @@ scene.add(light);
 // Позиция камеры
 camera.position.z = 5;
 
+// Центрирование куба
+cube.position.set(0, 0, 0);
+
 // Анимация
 const animate = () => {
   requestAnimationFrame(animate);
