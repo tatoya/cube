@@ -1,14 +1,6 @@
 let coins = 0;
-let clickPower = 1;
-let multiplier = 1;
-let autoClickers = 0;
 
 const coinsElement = document.getElementById('coins');
-const multiplierElement = document.getElementById('multiplier');
-const autoClickersElement = document.getElementById('autoClickers');
-const clickPowerCostElement = document.getElementById('clickPowerCost');
-const autoClickerCostElement = document.getElementById('autoClickerCost');
-const multiplierCostElement = document.getElementById('multiplierCost');
 
 // Инициализация Three.js
 const scene = new THREE.Scene();
@@ -51,51 +43,12 @@ renderer.domElement.addEventListener('click', (event) => {
   const intersects = raycaster.intersectObject(cube);
 
   if (intersects.length > 0) {
-    coins += clickPower * multiplier;
+    coins += 1; // Добавляем 1 монету за клик
     updateUI();
   }
 });
 
-// Автокликеры
-setInterval(() => {
-  coins += autoClickers * multiplier;
-  updateUI();
-}, 1000);
-
-// Магазин
-function buyClickPower() {
-  const cost = Math.pow(2, clickPower);
-  if (coins >= cost) {
-    coins -= cost;
-    clickPower += 1;
-    updateUI();
-  }
-}
-
-function buyAutoClicker() {
-  const cost = 50 * (autoClickers + 1);
-  if (coins >= cost) {
-    coins -= cost;
-    autoClickers += 1;
-    updateUI();
-  }
-}
-
-function buyMultiplier() {
-  const cost = 100 * multiplier;
-  if (coins >= cost) {
-    coins -= cost;
-    multiplier *= 2;
-    updateUI();
-  }
-}
-
 // Обновление интерфейса
 function updateUI() {
   coinsElement.textContent = coins;
-  multiplierElement.textContent = multiplier;
-  autoClickersElement.textContent = autoClickers;
-  clickPowerCostElement.textContent = Math.pow(2, clickPower);
-  autoClickerCostElement.textContent = 50 * (autoClickers + 1);
-  multiplierCostElement.textContent = 100 * multiplier;
 }
