@@ -1,74 +1,58 @@
-let cubcoins = 0; // Счетчик CubCoins
-let username = null; // Имя пользователя
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-// Элементы интерфейса
-const cube = document.getElementById('cube');
-const scoreDisplay = document.getElementById('score');
-const leaderboardDisplay = document.getElementById('leaderboard');
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Инициализация Telegram Web App
-Telegram.WebApp.ready();
+app.use(cors());
+app.use(bodyParser.json());
 
-// Получаем данные пользователя из Telegram
-const user = Telegram.WebApp.initDataUnsafe.user;
-if (user) {
-    // Используем username из Telegram, если он есть, иначе используем user_id
-    username = user.username || `user_${user.id}`;
-} else {
-    // Если данные пользователя недоступны, используем анонимное имя
-    username = 'anonymous';
-}
-
-// Обработчик кликов по кубу
-cube.addEventListener('click', () => {
-    cubcoins++; // Увеличиваем счетчик CubCoins
-    scoreDisplay.textContent = `CubCoins: ${cubcoins}`; // Обновляем отображение счета
-    updateServer(); // Отправляем данные на сервер
+// Подключение к MongoDB
+mongoose.connect('mongodb://localhost:27017/cubcoin', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 });
 
-// Функция для отправки данных на сервер
-async function updateServer() {
-    try {
-        // Отправляем POST-запрос на сервер с данными игрока
-        const response = await fetch('/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, cubcoins: 1 }), // Отправляем 1 CubCoin за каждый клик
-        });
+// Схема и модель для игроков
+const playerSchema = new mongoose.Schema({
+    username: String,
+    cubcoins: { type: Number, default: 0 },
+});
 
-        // Проверяем, что ответ сервера успешный
-        if (!response.ok) {
-            throw new Error('Server response was not OK');
+const Player = mongoose.model('Player', playerSchema);
+
+// Роут для получения лидерборда
+app.get('/leaderboard', async (req, res) => {
+    try {
+        const players = await Player.find().sort({ cubcoins: -1 }).limit(10);
+        res.json(players);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Роут для обновления очков игрока
+app.post('/update', async (req, res) => {
+    const { username, cubcoins } = req.body;
+
+    try {
+        let player = await Player.findOne({ username });
+
+        if (!player) {
+            player = new Player({ username, cubcoins });
+        } else {
+            player.cubcoins += cubcoins;
         }
 
-        const data = await response.json();
-        console.log('Server response:', data); // Логируем ответ сервера
-        updateLeaderboard(); // Обновляем лидерборд
-    } catch (error) {
-        console.error('Error updating server:', error);
+        await player.save();
+        res.json(player);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-}
+});
 
-// Функция для обновления лидерборда
-async function updateLeaderboard() {
-    try {
-        // Запрашиваем данные лидерборда с сервера
-        const response = await fetch('/leaderboard');
-        const data = await response.json();
-
-        // Форматируем данные лидерборда
-        const leaderboardText = data.map((player, index) => 
-            `${index + 1}. ${player.username}: ${player.cubcoins}`
-        ).join('\n');
-
-        // Обновляем отображение лидерборда
-        leaderboardDisplay.textContent = `Leaderboard:\n${leaderboardText}`;
-    } catch (error) {
-        console.error('Error updating leaderboard:', error);
-    }
-}
-
-// Инициализация лидерборда при загрузке страницы
-updateLeaderboard();
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
