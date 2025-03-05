@@ -10,10 +10,38 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Создание куба
+// Создание текстуры с белой точкой
+const createDotTexture = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const context = canvas.getContext('2d');
+
+  // Заливаем фон зеленым цветом
+  context.fillStyle = '#00ff00';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Рисуем белую точку
+  context.beginPath();
+  context.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2);
+  context.fillStyle = '#ffffff';
+  context.fill();
+
+  return new THREE.CanvasTexture(canvas);
+};
+
+// Создание куба с текстурой
+const materials = [
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 }), // Правая грань
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 }), // Левая грань
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 }), // Верхняя грань
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 }), // Нижняя грань
+  new THREE.MeshPhongMaterial({ map: createDotTexture() }), // Передняя грань (с точкой)
+  new THREE.MeshPhongMaterial({ color: 0x00ff00 }), // Задняя грань
+];
+
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }); // Зеленый куб
-const cube = new THREE.Mesh(geometry, material);
+const cube = new THREE.Mesh(geometry, materials);
 scene.add(cube);
 
 // Освещение
