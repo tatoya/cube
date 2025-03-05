@@ -1,28 +1,61 @@
-body {
-  margin: 0;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #000; /* Черный фон */
-  color: #fff; /* Белый текст */
-}
+let coins = 0;
 
-.overlay {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 1;
-  background: rgba(28, 28, 30, 0.8); /* Полупрозрачный темный фон */
-  padding: 15px 30px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px); /* Размытие фона */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Тонкая граница */
-}
+const coinsElement = document.getElementById('coins');
 
-.overlay h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #fff;
+// Инициализация Three.js
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Создание куба
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }); // Зеленый куб
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+// Освещение
+const light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(10, 10, 10);
+scene.add(light);
+
+// Позиция камеры
+camera.position.z = 5;
+
+// Центрирование куба
+cube.position.set(0, 0, 0);
+
+// Анимация
+const animate = () => {
+  requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  renderer.render(scene, camera);
+};
+animate();
+
+// Обработка кликов
+renderer.domElement.addEventListener('click', (event) => {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  // Преобразование координат мыши в нормализованные координаты (-1 to 1)
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Проверка пересечения луча с кубом
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(cube);
+
+  if (intersects.length > 0) {
+    coins += 1; // Добавляем 1 монету за клик
+    updateUI();
+  }
+});
+
+// Обновление интерфейса
+function updateUI() {
+  coinsElement.textContent = coins;
 }
