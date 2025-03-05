@@ -1,104 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUBE COIN</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        #cube {
-            width: 100px;
-            height: 100px;
-            background-color: #444;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        #score {
-            position: absolute;
-            top: 20px;
-            font-size: 24px;
-        }
-        #leaderboard {
-            position: absolute;
-            top: 60px;
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CUBE COIN</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #1a1a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    #cube {
+      width: 150px;
+      height: 150px;
+      background: #2d2d2d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    #score {
+      position: absolute;
+      top: 20px;
+      font-size: 24px;
+    }
+    #leaderboard {
+      position: absolute;
+      top: 80px;
+      width: 80%;
+      max-width: 400px;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="cube">CUBE</div>
-    <div id="score">CubCoins: 0</div>
-    <div id="leaderboard">Leaderboard: Loading...</div>
+  <div id="cube">TAP</div>
+  <div id="score">CUBE COINS: 0</div>
+  <div id="leaderboard">Loading leaderboard...</div>
 
-    <script>
-        let cubcoins = 0;
-        let username = null;
+  <script>
+    let cubcoins = 0;
+    let username = '';
 
-        const cube = document.getElementById('cube');
-        const scoreDisplay = document.getElementById('score');
-        const leaderboardDisplay = document.getElementById('leaderboard');
+    const cube = document.getElementById('cube');
+    const scoreDisplay = document.getElementById('score');
+    const leaderboardDisplay = document.getElementById('leaderboard');
 
-        // Инициализация Telegram Web App
-        Telegram.WebApp.ready();
+    // Инициализация Telegram Web App
+    Telegram.WebApp.ready();
+    const user = Telegram.WebApp.initDataUnsafe.user;
+    username = user?.username || `user_${user?.id || Date.now()}`;
 
-        // Получаем данные пользователя из Telegram
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            username = user.username || `user_${user.id}`;
-        } else {
-            username = 'anonymous';
-        }
-
-        // Обработчик кликов по кубу
-        cube.addEventListener('click', () => {
-            cubcoins++;
-            scoreDisplay.textContent = `CubCoins: ${cubcoins}`;
-            updateServer();
+    cube.addEventListener('click', async () => {
+      cubcoins++;
+      scoreDisplay.textContent = `CUBE COINS: ${cubcoins}`;
+      
+      try {
+        const response = await fetch('/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, cubcoins: 1 })
         });
-
-        // Обновление лидерборда
-        async function updateLeaderboard() {
-            try {
-                const response = await fetch('/leaderboard');
-                const data = await response.json();
-                leaderboardDisplay.textContent = 'Leaderboard: ' + data.map(p => `${p.username}: ${p.cubcoins}`).join(', ');
-            } catch (error) {
-                console.error('Error updating leaderboard:', error);
-            }
-        }
-
-        // Отправка данных на сервер
-        async function updateServer() {
-            try {
-                const response = await fetch('/update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, cubcoins: 1 }),
-                });
-                const data = await response.json();
-                updateLeaderboard();
-            } catch (error) {
-                console.error('Error updating server:', error);
-            }
-        }
-
-        // Инициализация лидерборда при загрузке
+        
+        const data = await response.json();
         updateLeaderboard();
-    </script>
+      } catch (err) {
+        console.error('Update error:', err);
+      }
+    });
+
+    // Обновление лидерборда
+    async function updateLeaderboard() {
+      try {
+        const response = await fetch('/leaderboard');
+        const players = await response.json();
+        
+        const leaderboardHTML = players.map((player, index) => `
+          <div>${index + 1}. ${player.username}: ${player.cubcoins}</div>
+        `).join('');
+        
+        leaderboardDisplay.innerHTML = `<h3>LEADERBOARD</h3>${leaderboardHTML}`;
+      } catch (err) {
+        console.error('Leaderboard error:', err);
+      }
+    }
+
+    // Первоначальная загрузка лидерборда
+    updateLeaderboard();
+  </script>
 </body>
 </html>
