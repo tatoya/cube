@@ -12,7 +12,7 @@ document.body.appendChild(renderer.domElement);
 
 // Создание куба
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }); // Зеленый куб
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -21,6 +21,7 @@ const light = new THREE.PointLight(0xffffff, 1, 100);
 light.position.set(10, 10, 10);
 scene.add(light);
 
+// Позиция камеры
 camera.position.z = 5;
 
 // Анимация
@@ -36,9 +37,12 @@ animate();
 renderer.domElement.addEventListener('click', (event) => {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
+
+  // Преобразование координат мыши в нормализованные координаты (-1 to 1)
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+  // Проверка пересечения луча с кубом
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObject(cube);
 
