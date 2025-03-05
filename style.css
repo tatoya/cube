@@ -7,39 +7,12 @@ body {
 .overlay {
   position: absolute;
   top: 20px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   color: white;
-  text-align: left;
+  text-align: center;
   z-index: 1;
   background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
+  padding: 10px 20px;
   border-radius: 10px;
-}
-
-.shop {
-  margin-top: 20px;
-}
-
-.shop-item {
-  border: 1px solid #444;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-}
-
-button {
-  background: #4CAF50;
-  border: none;
-  padding: 8px 15px;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #45a049;
-}
-
-.stats {
-  margin: 15px 0;
 }
