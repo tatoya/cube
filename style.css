@@ -1,31 +1,45 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-    background-color: #f0f0f0;
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
 }
 
-.container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: white;
+  text-align: left;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
 }
 
-h1 {
-    color: #333;
+.shop {
+  margin-top: 20px;
 }
 
-#farmButton {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.shop-item {
+  border: 1px solid #444;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
 }
 
-#farmButton:hover {
-    background-color: #218838;
+button {
+  background: #4CAF50;
+  border: none;
+  padding: 8px 15px;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+.stats {
+  margin: 15px 0;
 }
