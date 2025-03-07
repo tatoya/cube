@@ -1,24 +1,39 @@
 body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
 }
 
 .container {
     text-align: center;
 }
 
+h1 {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+p {
+    font-size: 1.5rem;
+    color: #555;
+}
+
 .cube {
     width: 100px;
     height: 100px;
-    position: relative;
+    position: absolute;
     transform-style: preserve-3d;
     transform: rotateX(25deg) rotateY(45deg);
     cursor: pointer;
+    transition: top 0.5s ease, left 0.5s ease;
+    border: none;
+    background: none;
+    padding: 0;
 }
 
 .face {
@@ -56,9 +71,4 @@ body {
 
 .bottom {
     transform: rotateX(-90deg) translateZ(50px);
-}
-
-p {
-    margin-top: 20px;
-    font-size: 24px;
 }
