@@ -1,28 +1,50 @@
-body {
+@import url('https://fonts.googleapis.com/css?family=Comfortaa');
+
+$color-dark: #333344;
+
+html, body
+{
   margin: 0;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #000; /* Черный фон */
-  color: #fff; /* Белый текст */
+  height: 100%;
+  width: 100%;
+  position: relative;
+  font-family: 'Comfortaa', cursive;
 }
 
-.overlay {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 1;
-  background: rgba(28, 28, 30, 0.8); /* Полупрозрачный темный фон */
-  padding: 15px 30px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px); /* Размытие фона */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Тонкая граница */
-}
+#container
+{
+  width: 100%;
+  height: 100%;
+  
+  #score
+  {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 10vh;
+    transition: transform 0.5s ease;
+    color: $color-dark;
+    transform: translatey(-200px) scale(1);
+  }
 
-.overlay h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #fff;
-}
+  #game
+  {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  
+  .game-over
+  {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 85%;
+    display: flex;
+    flex-direction: column;
+    
