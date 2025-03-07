@@ -8,8 +8,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cubecoin</h1>
-        <p>Монеты: <span id="coins">0</span></p>
+        <div class="header">
+            <h1>Cubecoin</h1>
+            <div class="coin-display">
+                <p>Монеты: <span id="coins">0</span></p>
+            </div>
+        </div>
         <button class="cube" id="cube">
             <div class="face front"></div>
             <div class="face back"></div>
@@ -19,6 +23,7 @@
             <div class="face bottom"></div>
         </button>
     </div>
+    <audio id="coinSound" src="coin.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
